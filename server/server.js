@@ -5,13 +5,13 @@ const cors = require("cors");
 const OpenAI = require("openai");
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = 3001;
 
 // Enable CORS for all routes
 app.use(cors());
 
 // SSE Endpoint
-app.get("/recipeStream", (req, res) => {
+app.get("/recipeStream", cors(), (req, res) => {
   const ingredients = req.query.ingredients;
   const mealType = req.query.mealType;
   const cuisine = req.query.cuisine;
@@ -48,22 +48,21 @@ app.get("/recipeStream", (req, res) => {
   };
 
   const prompt = [];
-    prompt.push("Generate a recipe that incorporates the following details:");
-    prompt.push(`[Ingredients: ${ingredients}]`);
-    prompt.push(`[Meal Type: ${mealType}]`);
-    prompt.push(`[Cuisine Preference: ${cuisine}]`);
-    prompt.push(`[Cooking Time: ${cookingTime}]`);
-    prompt.push(`[Complexity: ${complexity}]`);
-    prompt.push("Please provide a detailed recipe, including the following sections:");
-
-    prompt.push("- A recipe name in the local language based on the cuisine preference.");
-    prompt.push("- A list of ingredients with their exact measurements.");
-    prompt.push("- A detailed set of instructions broken into numbered steps. Each step should be clear, concise, and logically ordered.");
-    prompt.push("- Optional: If the recipe has a suggested garnish, side dish, or variation, please include it at the end.");
-    prompt.push("Please format the instructions in a way that makes it easy for a user to follow. Separate each instruction step with a blank line to improve readability.");
-    prompt.push("Ensure that the recipe highlights the fresh and vibrant flavors of the ingredients.");
-    prompt.push("Only use the ingredients provided in the list, and be sure to stay within the specified cooking time and complexity.");
-
+  prompt.push("Generate a recipe that incorporates the following details:");
+  prompt.push(`[Ingredients: ${ingredients}]`);
+  prompt.push(`[Meal Type: ${mealType}]`);
+  prompt.push(`[Cuisine Preference: ${cuisine}]`);
+  prompt.push(`[Cooking Time: ${cookingTime}]`);
+  prompt.push(`[Complexity: ${complexity}]`);
+  prompt.push(
+    "Please provide a detailed recipe, including steps for preparation and cooking. Only use the ingredients provided."
+  );
+  prompt.push(
+    "The recipe should highlight the fresh and vibrant flavors of the ingredients."
+  );
+  prompt.push(
+    "Also give the recipe a suiable name in its local languagebased on cuisine preference."
+  );
 
   const messages = [
     {
@@ -80,10 +79,9 @@ app.get("/recipeStream", (req, res) => {
 });
 
 async function fetchOpenAICompletionsStream(messages, callback) {
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const aiModel = "gpt-4o-mini-2024-07-18";
 
-
-  const aiModel = "gpt-4-1106-preview";
   try {
     const completion = await openai.chat.completions.create({
       model: aiModel,
