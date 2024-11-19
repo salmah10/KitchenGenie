@@ -124,7 +124,6 @@ const RecipeCard = ({ onSubmit }) => {
   );
 };
 
-
 function App() {
   const [recipeData, setRecipeData] = useState(null);
   const [recipeText, setRecipeText] = useState("");
@@ -142,12 +141,12 @@ function App() {
     }
   }, [recipeData]);
 
-  // Function to initialize the event stream
   const initializeEventStream = () => {
     const recipeInputs = {... recipeData };
 
     // Construct query parameters
     const queryParams = new URLSearchParams(recipeInputs).toString();
+    
     // Open an SSE connection with these query parameters
     const url = `http://localhost:3001/recipeStream?${queryParams}`;
     eventSourceRef.current = new EventSource(url);
@@ -168,7 +167,6 @@ function App() {
     };
   };
 
-  // Function to close the event stream
   const closeEventStream = () => {
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
@@ -178,7 +176,7 @@ function App() {
 
   async function onSubmit(data) {
     // update state
-    setRecipeText('')
+    setRecipeText('');
     setRecipeData(data);
   }
 
@@ -201,6 +199,5 @@ function App() {
     </div>
   );
 }
-
 
 export default App;
